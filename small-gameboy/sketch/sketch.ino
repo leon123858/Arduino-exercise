@@ -1,24 +1,20 @@
 #include <SPI.h>
 #include <Wire.h>
-#include "oled_api.h"
-#include "ps2btn_api.h"
+#include "controller.h"
 
 #define IS_DEBUG false
 
-OLED oled;
-PS2Button btn;
+Controller *controller = nullptr;
 
 void setup()
 {
 #if (IS_DEBUG)
   Serial.begin(9600);
 #endif
-  oled.init();
-  btn.init();
-  oled.printText("Welcome To Scouting");
+  controller = new Controller();
 }
 
 void loop()
 {
-  delay(1000);
+  controller->Serve();
 }

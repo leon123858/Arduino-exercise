@@ -1,5 +1,6 @@
 {
 	"files.associations": {
+		"*.ndjson": "jsonl",
 		"*.dbclient-js": "javascript",
 		"**/.dockerignore": "plaintext",
 		"deque": "cpp",
@@ -8,6 +9,7 @@
 		"list": "cpp",
 		"vector": "cpp",
 		"xstring": "cpp",
-		"xutility": "cpp"
+		"xutility": "cpp",
+		"iosfwd": "cpp"
 	}
 }

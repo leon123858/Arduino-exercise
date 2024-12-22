@@ -1,3 +1,6 @@
+#ifndef _OLED_H
+#define _OLED_H
+
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
@@ -9,12 +12,17 @@
 class OLED
 {
 private:
+public:
   Adafruit_SSD1306 *display = nullptr;
 
-public:
   OLED();
   ~OLED();
 
   void init();
   void printText(String str);
+  void drawArrow(int x, int y, bool isLeft);
+
+  void printMenuItem(String str, int size);
 };
+
+#endif // !_OLED_H

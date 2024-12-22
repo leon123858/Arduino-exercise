@@ -1,3 +1,6 @@
+#ifndef _PS2BUTTON_H
+#define _PS2BUTTON_H
+
 #include <SPI.h>
 #include <Wire.h>
 
@@ -76,3 +79,5 @@ public:
   void resetBtn(void);
   BUTTON_DIRECTORY getDir(void);
 };
+
+#endif // !_PS2BUTTON_H
