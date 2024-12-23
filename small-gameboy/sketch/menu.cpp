@@ -1,6 +1,6 @@
 #include "menu.h"
 
-const char *menuItems[] = {"Snake", "Wall Ball", "Dinosaur"};
+const char *menuItems[] = {"Snake", "Wall Ball", "Dinosaur", "Airplane"};
 const int menuItemsCount = MENU_ITEM_COUNT;
 MenuItem currentSelection = SNAKE;
 

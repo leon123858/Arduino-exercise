@@ -9,6 +9,7 @@ enum MenuItem
   SNAKE,
   WALL_BALL,
   DINOSAUR,
+  AIRPLANE,
   MENU_ITEM_COUNT
 };
 

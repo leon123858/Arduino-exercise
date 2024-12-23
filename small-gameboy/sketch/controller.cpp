@@ -1,5 +1,8 @@
 #include "controller.h"
 #include "menu.h"
+#include "gameFactory.h"
+
+GameBase *curGame = nullptr;
 
 Controller::Controller(/* args */)
 {
@@ -29,14 +32,26 @@ void Controller::Serve(void)
     if (btn.isClickBtn())
     {
       btn.resetBtn();
-      state = Game;
+      curGame = gameFactory(currentSelection, oled, btn);
+      this->state = Game;
     }
     break;
   case Game:
     // render to game
-    oled.printText(menuItems[currentSelection]);
+    curGame->runGame();
+    if (curGame->state == GAME_STATE_END)
+    {
+      this->state = Result;
+    }
     break;
   case Result:
+    if (btn.isClickBtn())
+    {
+      btn.resetBtn();
+      delete curGame;
+      this->state = Menu;
+    }
+    delay(30);
     break;
   default:
     // unexpected error

@@ -1,7 +1,6 @@
 #include "game.h"
-#include "menu.h"
 
-Game *gameFactory(MenuItem item)
+GameBase *gameFactory(MenuItem item, OLED &oled, PS2Button &btn)
 {
   switch (item)
   {
@@ -11,6 +10,9 @@ Game *gameFactory(MenuItem item)
     break;
   case DINOSAUR:
     break;
+  case AIRPLANE:
+    GameBase *g = new AirplaneGame(oled, btn);
+    return g;
   default:
     // unexpected error
     break;
