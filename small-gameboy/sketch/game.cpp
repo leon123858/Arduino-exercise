@@ -8,6 +8,71 @@ GameBase::GameBase(OLED &oled, PS2Button &btn)
   this->btn = &btn;
 }
 
+void GameBase::drawScore()
+{
+  auto display = this->oled->display;
+  display->setCursor(0, 0);
+  display->setTextSize(1);
+  display->setTextColor(WHITE);
+  display->print("Score: ");
+  display->print(this->score);
+}
+
+void GameBase::drawIntroduce(String str)
+{
+  auto display = this->oled->display;
+  display->setTextSize(1);
+  display->setTextColor(1);
+  display->setCursor(1, 20);
+  display->print(str);
+}
+
+void AirplaneGame::initGame()
+{
+  for (int i = 0; i < obstacleCnt; i++)
+  {
+    this->obstacleList[i] = point{0, SCREEN_HEIGHT + 1};
+  }
+  this->userPlaceX = SCREEN_WIDTH / 2 - this->playerWidth / 2;
+  this->userPlaceY = SCREEN_HEIGHT - this->playerHeight - 1;
+}
+
+void AirplaneGame::render()
+{
+  auto display = this->oled->display;
+  switch (this->state)
+  {
+  case GAME_STATE_INIT:
+    display->clearDisplay();
+    display->fillRect(this->userPlaceX, this->userPlaceY, this->playerWidth, this->playerHeight, WHITE);
+    this->drawScore();
+    this->drawIntroduce("click button to start");
+    display->display();
+    break;
+  case GAME_STATE_PLAYING:
+    display->clearDisplay();
+    for (int i = 0; i < obstacleCnt; i++)
+    {
+      if (obstacleList[i].y >= 0)
+      {
+        display->fillRect(obstacleList[i].x, obstacleList[i].y, this->obstacleWidth, this->obstacleHeight, WHITE);
+      }
+    }
+    display->fillRect(this->userPlaceX, this->userPlaceY, this->playerWidth, this->playerHeight, WHITE);
+    this->drawScore();
+    display->display();
+    break;
+  case GAME_STATE_END:
+    display->clearDisplay();
+    this->drawScore();
+    this->drawIntroduce("click button to back");
+    display->display();
+    break;
+  default:
+    break;
+  }
+}
+
 void AirplaneGame::runGame()
 {
   auto display = this->oled->display;
@@ -15,27 +80,9 @@ void AirplaneGame::runGame()
   {
   case GAME_STATE_INIT:
   {
-    this->userPlaceX = SCREEN_WIDTH / 2 - this->playerWidth / 2;
-    this->userPlaceY = SCREEN_HEIGHT - this->playerHeight - 1;
     randomSeed(analogRead(0));
-    // initView render
-    display->clearDisplay();
-    // 繪製玩家
-    display->fillRect(this->userPlaceX, this->userPlaceY, this->playerWidth, this->playerHeight, WHITE);
-    // 繪製分數
-    display->setCursor(0, 0);
-    display->setTextSize(1);
-    display->setTextColor(WHITE);
-    display->print("Score: ");
-    display->print(this->score);
-    // introduction
-    display->setTextSize(1);
-    display->setTextColor(1);
-    display->setCursor(1, 20);
-    display->print("click button to start");
-    // render
-    display->display();
-    delay(10);
+    this->render();
+    delay(FRAME_DELAY);
     if (this->btn->isClickBtn())
     {
       this->btn->resetBtn();
@@ -64,7 +111,7 @@ void AirplaneGame::runGame()
     default:
       break;
     }
-    // verify
+    // verify control
     if (userPlaceX < 0)
       userPlaceX = 0;
     if (userPlaceX > SCREEN_WIDTH - this->playerWidth)
@@ -74,17 +121,18 @@ void AirplaneGame::runGame()
     if (userPlaceY > SCREEN_HEIGHT - this->playerHeight)
       userPlaceY = SCREEN_HEIGHT - this->playerHeight;
     // move enemy
-    for (auto i = 0; i < 10; i++)
+    for (auto i = 0; i < obstacleCnt; i++)
     {
       obstacleList[i].y += MOVE_VELOCITY;
     }
+    // verify enemy
     Rectangle r1 = {
         userPlaceX,
         userPlaceY,
         this->playerWidth,
         this->playerHeight,
     };
-    for (auto i = 0; i < 10; i++)
+    for (auto i = 0; i < obstacleCnt; i++)
     {
       Rectangle r2 = {
           obstacleList[i].x,
@@ -97,59 +145,31 @@ void AirplaneGame::runGame()
         isImpact = true;
       }
     }
-    for (auto i = 0; i < 10; i++)
+    for (auto i = 0; i < obstacleCnt; i++)
     {
       if (obstacleList[i].y > SCREEN_HEIGHT)
       {
         this->score++;
         obstacleList[i].x = random(SCREEN_WIDTH);
-        obstacleList[i].y = random(-50, 0);
+        obstacleList[i].y = random(AIRPLANE_minusHeight, 0);
       }
     }
-    // render
-    display->clearDisplay();
-    for (int i = 0; i < 10; i++)
-    {
-      if (obstacleList[i].y >= 0)
-      {
-        display->fillRect(obstacleList[i].x, obstacleList[i].y, this->obstacleWidth, this->obstacleHeight, WHITE);
-      }
-    }
-    display->fillRect(this->userPlaceX, this->userPlaceY, this->playerWidth, this->playerHeight, WHITE);
-    // 繪製分數
-    display->setCursor(0, 0);
-    display->setTextSize(1);
-    display->setTextColor(WHITE);
-    display->print("Score: ");
-    display->print(this->score);
-    // render
-    display->display();
+    this->render();
     // delay
-    delay(30);
+    delay(FRAME_DELAY);
     if (isImpact)
     {
-      display->clearDisplay();
-      display->setCursor(0, 0);
-      display->setTextSize(1);
-      display->setTextColor(WHITE);
-      display->print("Score: ");
-      display->print(this->score);
-      // intro
-      display->setTextSize(1);
-      display->setTextColor(1);
-      display->setCursor(1, 20);
-      display->print("click button to back");
-      // render
-      display->display();
       this->state = GAME_STATE_END;
+      this->render();
     }
     break;
   }
   case GAME_STATE_END:
-    // unexpected error
-    break;
   default:
-    // unexpected error
+    oled->printText("error");
+    while (true)
+    {
+    }
     break;
   }
 }

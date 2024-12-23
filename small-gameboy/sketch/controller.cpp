@@ -33,6 +33,7 @@ void Controller::Serve(void)
     {
       btn.resetBtn();
       curGame = gameFactory(currentSelection, oled, btn);
+      curGame->initGame();
       this->state = Game;
     }
     break;
@@ -42,16 +43,17 @@ void Controller::Serve(void)
     if (curGame->state == GAME_STATE_END)
     {
       this->state = Result;
+      btn.resetBtn();
     }
     break;
   case Result:
+    delay(30);
     if (btn.isClickBtn())
     {
       btn.resetBtn();
       delete curGame;
       this->state = Menu;
     }
-    delay(30);
     break;
   default:
     // unexpected error
