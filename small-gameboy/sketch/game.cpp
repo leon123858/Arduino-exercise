@@ -27,6 +27,89 @@ void GameBase::drawIntroduce(String str)
   display->print(str);
 }
 
+void SnakeGame::initGame()
+{
+  snake_length = STARTING_SNAKE_SIZE;
+  for (int i = 0; i < snake_length; i++)
+  {
+    snake[i].x = SNAKE_MAP_UNIT_X_LEN / 2 - i; // 初始化蛇的位置
+    snake[i].y = SNAKE_MAP_UNIT_Y_LEN - 1;     // Y坐標固定
+  }
+  curDir = RIGHT;
+  newDir = RIGHT;
+}
+
+void SnakeGame::runGame()
+{
+  switch (this->state)
+  {
+  case GAME_STATE_INIT:
+    randomSeed(analogRead(EMPTY_A_PORT_FOR_RANDOM));
+    render();
+    if (btn->isClickBtn())
+    {
+      btn->resetBtn();
+      this->state = GAME_STATE_PLAYING;
+    }
+    delay(FRAME_DELAY);
+    break;
+  case GAME_STATE_PLAYING:
+    // moveTime++;
+    // readDirection();
+    // if (moveTime >= MOVE_STATE_FRAME_CNT)
+    // {
+    //   curDir = newDir;
+    //   // control
+    //   // verify
+    //   // response
+    //   moveTime = 0;
+    // }
+    render();
+    delay(FRAME_DELAY);
+    break;
+
+  case GAME_STATE_END:
+    if (btn->isClickBtn())
+    {
+      btn->resetBtn();
+      delay(500);
+    }
+    break;
+  }
+}
+
+void SnakeGame::render()
+{
+  switch (state)
+  {
+  case GAME_STATE_INIT:
+    this->oled->display->clearDisplay();
+    this->drawIntroduce("click button to start");
+    this->drawScore();
+    oled->display->drawRect(SNAKE_MAP_OFFSET_X - 2, SNAKE_MAP_OFFSET_Y - 2, SNAKE_PIECE_SIZE * SNAKE_MAP_UNIT_X_LEN + 2, SNAKE_PIECE_SIZE * SNAKE_MAP_UNIT_Y_LEN + 2, SSD1306_WHITE);
+    for (int i = 0; i < snake_length; i++)
+    {
+      oled->display->drawRect(snake[i].x * SNAKE_PIECE_SIZE + SNAKE_MAP_OFFSET_X, snake[i].y * SNAKE_PIECE_SIZE + SNAKE_MAP_OFFSET_Y, SNAKE_PIECE_SIZE, SNAKE_PIECE_SIZE, SSD1306_WHITE);
+    }
+    this->oled->display->display();
+    break;
+  case GAME_STATE_PLAYING:
+    this->oled->display->clearDisplay();
+    this->drawScore();
+    oled->display->drawRect(SNAKE_MAP_OFFSET_X - 2, SNAKE_MAP_OFFSET_Y - 2, SNAKE_PIECE_SIZE * SNAKE_MAP_UNIT_X_LEN + 2, SNAKE_PIECE_SIZE * SNAKE_MAP_UNIT_Y_LEN + 2, SSD1306_WHITE);
+    for (int i = 0; i < snake_length; i++)
+    {
+      oled->display->drawRect(snake[i].x * SNAKE_PIECE_SIZE + SNAKE_MAP_OFFSET_X, snake[i].y * SNAKE_PIECE_SIZE + SNAKE_MAP_OFFSET_Y, SNAKE_PIECE_SIZE, SNAKE_PIECE_SIZE, SSD1306_WHITE);
+    }
+    this->oled->display->display();
+    break;
+  case GAME_STATE_END:
+    break;
+  default:
+    break;
+  }
+}
+
 void AirplaneGame::initGame()
 {
   for (int i = 0; i < obstacleCnt; i++)
@@ -80,7 +163,7 @@ void AirplaneGame::runGame()
   {
   case GAME_STATE_INIT:
   {
-    randomSeed(analogRead(0));
+    randomSeed(analogRead(EMPTY_A_PORT_FOR_RANDOM));
     this->render();
     delay(FRAME_DELAY);
     if (this->btn->isClickBtn())

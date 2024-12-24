@@ -17,6 +17,12 @@ struct point
   int y;
 };
 
+struct shortPoint
+{
+  unsigned char x;
+  unsigned char y;
+};
+
 // 巨集判斷矩形是否相交
 #define RECTANGLES_INTERSECT(rect1, rect2) \
   (rect1.x < rect2.x + rect2.w &&          \
@@ -27,9 +33,19 @@ struct point
 // global
 #define MOVE_VELOCITY 4
 #define FRAME_DELAY 30
+#define EMPTY_A_PORT_FOR_RANDOM A3
 // app
 #define AIRPLANE_obstacleCnt 10
 #define AIRPLANE_minusHeight -50
+
+#define SNAKE_PIECE_SIZE 9
+#define SNAKE_MAP_OFFSET_X 10
+#define SNAKE_MAP_OFFSET_Y 14
+#define SNAKE_MAP_UNIT_X_LEN ((SCREEN_WIDTH - (2 * SNAKE_MAP_OFFSET_X)) / SNAKE_PIECE_SIZE)
+#define SNAKE_MAP_UNIT_Y_LEN ((SCREEN_HEIGHT - (2 * SNAKE_MAP_OFFSET_Y)) / SNAKE_PIECE_SIZE)
+#define STARTING_SNAKE_SIZE 5
+#define MOVE_STATE_FRAME_CNT 3
+#define MAX_SNAKE_LENGTH ((SNAKE_MAP_UNIT_X_LEN * SNAKE_MAP_UNIT_Y_LEN)) // base on memory limit, can not too long
 
 enum GAME_STATE
 {
@@ -58,6 +74,32 @@ public:
 
 class SnakeGame : public GameBase
 {
+private:
+  shortPoint snake[MAX_SNAKE_LENGTH]; // 蛇的身體之 x,y 座標
+  BUTTON_DIRECTORY curDir;
+  BUTTON_DIRECTORY newDir;
+  shortPoint fruit;
+  int8_t snake_length; // 蛇的長度
+  int moveTime = 0;
+
+  void readDirection()
+  {
+    BUTTON_DIRECTORY dir = this->btn->getDir();
+    if (dir == MID)
+    {
+      newDir = curDir;
+    }
+    else
+    {
+      newDir = dir;
+    }
+  }
+
+public:
+  using GameBase::GameBase;
+  void runGame() override;
+  void initGame() override;
+  void render() override;
 };
 
 class WallBallGame : public GameBase
@@ -78,9 +120,9 @@ private:
 
 public:
   using GameBase::GameBase;
-  void AirplaneGame::runGame() override;
-  void AirplaneGame::initGame() override;
-  void AirplaneGame::render() override;
+  void runGame() override;
+  void initGame() override;
+  void render() override;
 };
 
 #endif // !_GAME_H_

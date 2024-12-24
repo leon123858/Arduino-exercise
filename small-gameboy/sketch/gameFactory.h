@@ -5,18 +5,14 @@ GameBase *gameFactory(MenuItem item, OLED &oled, PS2Button &btn)
   switch (item)
   {
   case SNAKE:
-    break;
+    return new SnakeGame(oled, btn);
   case WALL_BALL:
-    break;
+    return nullptr;
   case DINOSAUR:
-    break;
+    return nullptr;
   case AIRPLANE:
-    GameBase *g = new AirplaneGame(oled, btn);
-    return g;
+    return new AirplaneGame(oled, btn);
   default:
-    // unexpected error
-    break;
+    return nullptr;
   }
-
-  return nullptr;
 }

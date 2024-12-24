@@ -25,6 +25,7 @@ void Controller::Serve(void)
   case Welcome:
     delay(1500);
     this->state = Menu;
+    btn.resetBtn();
     break;
   case Menu:
     moveSelection(this->btn);
@@ -32,7 +33,14 @@ void Controller::Serve(void)
     if (btn.isClickBtn())
     {
       btn.resetBtn();
-      curGame = gameFactory(currentSelection, oled, btn);
+      curGame = gameFactory(currentSelection, this->oled, this->btn);
+      if (curGame == nullptr)
+      {
+        oled.printText("null game");
+        while (true)
+        {
+        }
+      }
       curGame->initGame();
       this->state = Game;
     }
