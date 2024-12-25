@@ -46,6 +46,7 @@ struct shortPoint
 #define STARTING_SNAKE_SIZE 5
 #define MOVE_STATE_FRAME_CNT 3
 #define MAX_SNAKE_LENGTH ((SNAKE_MAP_UNIT_X_LEN * SNAKE_MAP_UNIT_Y_LEN)) // base on memory limit, can not too long
+#define SNAKE_MOVING_STATE_CNT 10
 
 enum GAME_STATE
 {
@@ -61,6 +62,7 @@ public:
   PS2Button *btn;
   GAME_STATE state;
   int score;
+  int movingState = 0;
 
   void drawScore(void);
   void drawIntroduce(String str);
@@ -80,20 +82,9 @@ private:
   BUTTON_DIRECTORY newDir;
   shortPoint fruit;
   int8_t snake_length; // 蛇的長度
-  int moveTime = 0;
 
-  void readDirection()
-  {
-    BUTTON_DIRECTORY dir = this->btn->getDir();
-    if (dir == MID)
-    {
-      newDir = curDir;
-    }
-    else
-    {
-      newDir = dir;
-    }
-  }
+  void readDirection();
+  void generateApple();
 
 public:
   using GameBase::GameBase;

@@ -37,6 +37,69 @@ void SnakeGame::initGame()
   }
   curDir = RIGHT;
   newDir = RIGHT;
+  generateApple();
+}
+
+void SnakeGame::readDirection()
+{
+  BUTTON_DIRECTORY dir = this->btn->getDir();
+  if (dir == MID)
+  {
+    newDir = curDir;
+  }
+  else
+  {
+    newDir = dir;
+  }
+}
+
+void SnakeGame::generateApple()
+{
+  unsigned short tryTime = 0;
+  bool overlapping;
+  do
+  {
+    overlapping = false;
+    if (tryTime > 20)
+    {
+      for (int i = 0; i < SNAKE_MAP_UNIT_X_LEN; i++)
+      {
+        for (int j = 0; j < SNAKE_MAP_UNIT_Y_LEN; j++)
+        {
+          fruit.x = i;
+          fruit.y = j;
+          overlapping = false;
+          for (int i = 0; i < snake_length; i++)
+          {
+            if (fruit.x == snake[i].x && fruit.y == snake[i].y)
+            {
+              overlapping = true;
+              break;
+            }
+          }
+          if (!overlapping)
+          {
+            return;
+          }
+        }
+      }
+      break;
+    }
+    else
+    {
+      tryTime++;
+      fruit.x = random(0, SNAKE_MAP_UNIT_X_LEN);
+      fruit.y = random(0, SNAKE_MAP_UNIT_Y_LEN);
+      for (int i = 0; i < snake_length; i++)
+      {
+        if (fruit.x == snake[i].x && fruit.y == snake[i].y)
+        {
+          overlapping = true;
+          break;
+        }
+      }
+    }
+  } while (overlapping);
 }
 
 void SnakeGame::runGame()
@@ -54,25 +117,96 @@ void SnakeGame::runGame()
     delay(FRAME_DELAY);
     break;
   case GAME_STATE_PLAYING:
-    // moveTime++;
-    // readDirection();
-    // if (moveTime >= MOVE_STATE_FRAME_CNT)
-    // {
-    //   curDir = newDir;
-    //   // control
-    //   // verify
-    //   // response
-    //   moveTime = 0;
-    // }
-    render();
+  {
+    // control
+    readDirection();
+    movingState++;
+    if (movingState > SNAKE_MOVING_STATE_CNT)
+    {
+      // move
+      int8_t x = snake[0].x;
+      int8_t y = snake[0].y;
+      switch (newDir)
+      {
+      case LEFT:
+        x -= 1;
+        break;
+      case UP:
+        y -= 1;
+        break;
+      case RIGHT:
+        x += 1;
+        break;
+      case DOWN:
+        y += 1;
+        break;
+      }
+      if (x == snake[1].x && y == snake[1].y)
+      {
+        // collision index 1 is user op error, just rollback
+        newDir = curDir;
+        x = snake[0].x;
+        y = snake[0].y;
+        switch (curDir)
+        {
+        case LEFT:
+          x -= 1;
+          break;
+        case UP:
+          y -= 1;
+          break;
+        case RIGHT:
+          x += 1;
+          break;
+        case DOWN:
+          y += 1;
+          break;
+        }
+      }
+      curDir = newDir;
+      // verify
+      for (int i = 2; i < snake_length; i++)
+      {
+        if (x == snake[i].x && y == snake[i].y)
+        {
+          this->state = GAME_STATE_END;
+        }
+      }
+      if (x < 0 || y < 0 || x >= SNAKE_MAP_UNIT_X_LEN || y >= SNAKE_MAP_UNIT_Y_LEN)
+      {
+        this->state = GAME_STATE_END;
+      }
+      // response
+      for (int i = snake_length - 1; i > 0; i--)
+      {
+        snake[i].x = snake[i - 1].x; // 移動蛇身
+        snake[i].y = snake[i - 1].y;
+      }
+
+      snake[0].x = x; // 更新蛇頭位置
+      snake[0].y = y;
+      if (fruit.x == snake[0].x && fruit.y == snake[0].y)
+      {
+        if (snake_length < MAX_SNAKE_LENGTH)
+        { // 確保不超過最大長度
+          snake_length++;
+        }
+        generateApple();
+        score++;
+      }
+      // set state
+      movingState = 0;
+      render();
+    }
     delay(FRAME_DELAY);
-    break;
+  }
+  break;
 
   case GAME_STATE_END:
-    if (btn->isClickBtn())
+  default:
+    oled->printText("error");
+    while (true)
     {
-      btn->resetBtn();
-      delay(500);
     }
     break;
   }
@@ -96,14 +230,27 @@ void SnakeGame::render()
   case GAME_STATE_PLAYING:
     this->oled->display->clearDisplay();
     this->drawScore();
+    oled->display->fillRect(fruit.x * SNAKE_PIECE_SIZE + SNAKE_MAP_OFFSET_X, fruit.y * SNAKE_PIECE_SIZE + SNAKE_MAP_OFFSET_Y, SNAKE_PIECE_SIZE, SNAKE_PIECE_SIZE, SSD1306_WHITE);
     oled->display->drawRect(SNAKE_MAP_OFFSET_X - 2, SNAKE_MAP_OFFSET_Y - 2, SNAKE_PIECE_SIZE * SNAKE_MAP_UNIT_X_LEN + 2, SNAKE_PIECE_SIZE * SNAKE_MAP_UNIT_Y_LEN + 2, SSD1306_WHITE);
-    for (int i = 0; i < snake_length; i++)
+    oled->display->fillRect(snake[0].x * SNAKE_PIECE_SIZE + SNAKE_MAP_OFFSET_X, snake[0].y * SNAKE_PIECE_SIZE + SNAKE_MAP_OFFSET_Y, SNAKE_PIECE_SIZE, SNAKE_PIECE_SIZE, SSD1306_WHITE);
+    for (int i = 1; i < snake_length; i++)
     {
       oled->display->drawRect(snake[i].x * SNAKE_PIECE_SIZE + SNAKE_MAP_OFFSET_X, snake[i].y * SNAKE_PIECE_SIZE + SNAKE_MAP_OFFSET_Y, SNAKE_PIECE_SIZE, SNAKE_PIECE_SIZE, SSD1306_WHITE);
     }
     this->oled->display->display();
     break;
   case GAME_STATE_END:
+    this->oled->display->clearDisplay();
+    this->drawScore();
+    this->drawIntroduce("collision occur");
+    oled->display->fillRect(fruit.x * SNAKE_PIECE_SIZE + SNAKE_MAP_OFFSET_X, fruit.y * SNAKE_PIECE_SIZE + SNAKE_MAP_OFFSET_Y, SNAKE_PIECE_SIZE, SNAKE_PIECE_SIZE, SSD1306_WHITE);
+    oled->display->drawRect(SNAKE_MAP_OFFSET_X - 2, SNAKE_MAP_OFFSET_Y - 2, SNAKE_PIECE_SIZE * SNAKE_MAP_UNIT_X_LEN + 2, SNAKE_PIECE_SIZE * SNAKE_MAP_UNIT_Y_LEN + 2, SSD1306_WHITE);
+    oled->display->fillRect(snake[0].x * SNAKE_PIECE_SIZE + SNAKE_MAP_OFFSET_X, snake[0].y * SNAKE_PIECE_SIZE + SNAKE_MAP_OFFSET_Y, SNAKE_PIECE_SIZE, SNAKE_PIECE_SIZE, SSD1306_WHITE);
+    for (int i = 1; i < snake_length; i++)
+    {
+      oled->display->drawRect(snake[i].x * SNAKE_PIECE_SIZE + SNAKE_MAP_OFFSET_X, snake[i].y * SNAKE_PIECE_SIZE + SNAKE_MAP_OFFSET_Y, SNAKE_PIECE_SIZE, SNAKE_PIECE_SIZE, SSD1306_WHITE);
+    }
+    this->oled->display->display();
     break;
   default:
     break;
