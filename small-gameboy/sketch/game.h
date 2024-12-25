@@ -46,7 +46,7 @@ struct shortPoint
 #define STARTING_SNAKE_SIZE 5
 #define MOVE_STATE_FRAME_CNT 3
 #define MAX_SNAKE_LENGTH ((SNAKE_MAP_UNIT_X_LEN * SNAKE_MAP_UNIT_Y_LEN)) // base on memory limit, can not too long
-#define SNAKE_MOVING_STATE_CNT 10
+#define SNAKE_MOVING_STATE_CNT 500
 
 enum GAME_STATE
 {
@@ -62,10 +62,11 @@ public:
   PS2Button *btn;
   GAME_STATE state;
   int score;
-  int movingState = 0;
+  unsigned long globalClock = 0;
 
   void drawScore(void);
   void drawIntroduce(String str);
+  bool asyncDelay(int ms);
 
   GameBase(OLED &oled, PS2Button &btn);
 
@@ -85,6 +86,8 @@ private:
 
   void readDirection();
   void generateApple();
+  void drawGame();
+  void getNewPoint(shortPoint *oldPoint, shortPoint *newPoint);
 
 public:
   using GameBase::GameBase;
