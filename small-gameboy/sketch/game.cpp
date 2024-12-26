@@ -256,6 +256,195 @@ void SnakeGame::render()
   }
 }
 
+void WallBallGame::initGame()
+{
+  for (int i = 0; i < BRICK_WIDTH_COUNT; i++)
+  {
+    for (int j = 0; j < BRICK_HEIGHT_COUNT; j++)
+    {
+      auto index = j * BRICK_WIDTH_COUNT + i;
+      bricksActivity[index] = true;
+      bricksPlace[index].x = X_OFFSET + brickMidOffset + i * (brickWidth + brickMidOffset);
+      bricksPlace[index].y = Y_OFFSET + j * (brickHeight + brickMidOffset);
+    }
+  }
+  paddle.x = SCREEN_WIDTH / 2 - paddleWidth / 2; // 3 is magic number
+  paddle.y = SCREEN_HEIGHT - Y_OFFSET - paddleHeight * 2;
+  ballPlace.x = SCREEN_WIDTH / 2;
+  ballPlace.y = paddle.y - ballR;
+  ballVector.x = ballSpeed;
+  ballVector.y = ballSpeed;
+}
+
+void WallBallGame::runGame()
+{
+  if (!asyncDelay(BRICK_GAME_MOVING_STATE_CNT))
+  {
+    return;
+  }
+  auto display = this->oled->display;
+  switch (this->state)
+  {
+  case GAME_STATE_INIT:
+  {
+    this->render();
+    delay(FRAME_DELAY);
+    if (this->btn->isClickBtn())
+    {
+      this->btn->resetBtn();
+      this->state = GAME_STATE_PLAYING;
+    }
+    break;
+  }
+  case GAME_STATE_PLAYING:
+  {
+    bool isGameOver = false;
+    // control
+    switch (this->btn->getDir())
+    {
+    case LEFT:
+      paddle.x -= this->ballSpeed;
+      break;
+    case RIGHT:
+      paddle.x += this->ballSpeed;
+      break;
+    default:
+      break;
+    }
+    // verify control
+    if (paddle.x < X_OFFSET)
+      paddle.x = X_OFFSET;
+    if (paddle.x > SCREEN_WIDTH - X_OFFSET - paddleWidth)
+      paddle.x = SCREEN_WIDTH - X_OFFSET - paddleWidth;
+    // verify collision (brick, wall, paddle)
+    if (ballPlace.y + ballR > paddle.y &&
+        ballPlace.x + ballR > paddle.x &&
+        ballPlace.x < paddle.x + paddleWidth)
+    {
+      ballPlace.y = paddle.y - ballR;
+      ballVector.y = -ballVector.y; // 反彈
+    }
+    if (ballPlace.x < X_OFFSET)
+    {
+      ballPlace.x = X_OFFSET;
+      ballVector.x = -ballVector.x; // 反彈
+    }
+    if (ballPlace.x > SCREEN_WIDTH - X_OFFSET)
+    {
+      ballPlace.x = SCREEN_WIDTH - X_OFFSET;
+      ballVector.x = -ballVector.x; // 反彈
+    }
+    if (ballPlace.y < Y_OFFSET)
+    {
+      ballPlace.y = Y_OFFSET;
+      ballVector.y = -ballVector.y; // 反彈
+    }
+    for (int i = 0; i < BRICK_COUNT; i++)
+    {
+      if (bricksActivity[i])
+      {
+        // 碰撞檢查
+        if (ballPlace.x + ballR > bricksPlace[i].x &&
+            ballPlace.x < bricksPlace[i].x + brickWidth &&
+            ballPlace.y + ballR > bricksPlace[i].y &&
+            ballPlace.y < bricksPlace[i].y + brickHeight)
+        {
+          // auto brickCenterX = bricksPlace[i].x + brickHeight / 2;
+          // auto brickCenterY = bricksPlace[i].y + brickWidth / 2;
+
+          // // 計算與磚塊的距離
+          // auto deltaX = ballCenterX - brickCenterX;
+          // auto deltaY = ballCenterY - brickCenterY;
+
+          // // 判斷碰撞的是上邊還是側邊
+          // if (abs(deltaX) > abs(deltaY))
+          // {
+          //   // 側面碰撞
+          //   ball.xSpeed = -ball.xSpeed; // 改變水平方向
+          // }
+          // else
+          // {
+          //   // 上邊碰撞
+          //   ball.ySpeed = -ball.ySpeed; // 改變垂直方向
+          // }
+
+          // bricks[i].isActive = false; // 磚塊被擊中
+          // score++;
+        }
+      }
+    }
+
+    // move ball
+    ballPlace.x += ballVector.x;
+    ballPlace.y += ballVector.y;
+    // verify isGameOver (all point, ball fall)
+    this->render();
+    if (isGameOver)
+    {
+      this->state = GAME_STATE_END;
+    }
+    break;
+  }
+  case GAME_STATE_END:
+    this->render();
+    break;
+  default:
+    oled->printText("error");
+    while (true)
+    {
+    }
+    break;
+  }
+}
+
+void WallBallGame::drawGame()
+{
+  // border
+  oled->display->drawRect(X_OFFSET, Y_OFFSET, SCREEN_WIDTH - 2 * X_OFFSET, SCREEN_HEIGHT - 2 * Y_OFFSET, SSD1306_WHITE);
+  // paddle
+  oled->display->fillRect(paddle.x, paddle.y, paddleWidth, paddleHeight, SSD1306_WHITE);
+  // ball
+  oled->display->fillCircle(ballPlace.x, ballPlace.y, ballR, SSD1306_WHITE);
+  // bracket
+  for (int i = 0; i < BRICK_COUNT; i++)
+  {
+    if (!bricksActivity[i])
+    {
+      continue;
+    }
+    oled->display->fillRect(bricksPlace[i].x, bricksPlace[i].y, brickWidth, brickHeight, SSD1306_WHITE);
+  }
+}
+
+void WallBallGame::render()
+{
+  switch (state)
+  {
+  case GAME_STATE_INIT:
+    this->oled->display->clearDisplay();
+    this->drawIntroduce("click button to start");
+    this->drawScore();
+    drawGame();
+    this->oled->display->display();
+    break;
+  case GAME_STATE_PLAYING:
+    this->oled->display->clearDisplay();
+    this->drawScore();
+    drawGame();
+    this->oled->display->display();
+    break;
+  case GAME_STATE_END:
+    this->oled->display->clearDisplay();
+    this->drawScore();
+    this->drawIntroduce("game stop!");
+    drawGame();
+    this->oled->display->display();
+    break;
+  default:
+    break;
+  }
+}
+
 void AirplaneGame::initGame()
 {
   for (int i = 0; i < obstacleCnt; i++)

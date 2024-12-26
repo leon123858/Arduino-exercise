@@ -7,7 +7,7 @@ GameBase *gameFactory(MenuItem item, OLED &oled, PS2Button &btn)
   case SNAKE:
     return new SnakeGame(oled, btn);
   case WALL_BALL:
-    return nullptr;
+    return new WallBallGame(oled, btn);
   case DINOSAUR:
     return nullptr;
   case AIRPLANE:

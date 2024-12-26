@@ -48,6 +48,11 @@ struct shortPoint
 #define MAX_SNAKE_LENGTH ((SNAKE_MAP_UNIT_X_LEN * SNAKE_MAP_UNIT_Y_LEN)) // base on memory limit, can not too long
 #define SNAKE_MOVING_STATE_CNT 500
 
+#define BRICK_HEIGHT_COUNT 3
+#define BRICK_WIDTH_COUNT 9
+#define BRICK_COUNT (BRICK_HEIGHT_COUNT * BRICK_WIDTH_COUNT)
+#define BRICK_GAME_MOVING_STATE_CNT 30
+
 enum GAME_STATE
 {
   GAME_STATE_INIT,
@@ -98,6 +103,30 @@ public:
 
 class WallBallGame : public GameBase
 {
+private:
+  shortPoint bricksPlace[BRICK_COUNT];
+  bool bricksActivity[BRICK_COUNT];
+  shortPoint paddle;
+  shortPoint ballPlace;
+  shortPoint ballVector;
+
+  static const short paddleWidth = 30;
+  static const short paddleHeight = 5;
+  static const short ballR = 2;
+  static const short brickWidth = 12;
+  static const short brickHeight = 4;
+  static const short brickMidOffset = 1;
+  static const short Y_OFFSET = 10;
+  static const short X_OFFSET = 4;
+  static const short ballSpeed = 1;
+
+  void drawGame();
+
+public:
+  using GameBase::GameBase;
+  void runGame() override;
+  void initGame() override;
+  void render() override;
 };
 
 class AirplaneGame : public GameBase
