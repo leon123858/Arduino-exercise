@@ -55,7 +55,7 @@ void Controller::Serve(void)
     }
     break;
   case Result:
-    delay(30);
+    curGame->runGame();
     if (btn.isClickBtn())
     {
       btn.resetBtn();

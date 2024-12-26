@@ -204,8 +204,9 @@ void SnakeGame::runGame()
     }
   }
   break;
-
   case GAME_STATE_END:
+    render();
+    break;
   default:
     oled->printText("error");
     while (true)
@@ -388,11 +389,12 @@ void AirplaneGame::runGame()
     if (isImpact)
     {
       this->state = GAME_STATE_END;
-      this->render();
     }
     break;
   }
   case GAME_STATE_END:
+    this->render();
+    break;
   default:
     oled->printText("error");
     while (true)
