@@ -1,6 +1,6 @@
 #include "controller.h"
 #include "menu.h"
-#include "gameFactory.h"
+#include "gameFactory.hpp"
 
 GameBase *curGame = nullptr;
 
