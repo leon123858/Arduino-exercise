@@ -1,34 +1,14 @@
 #ifndef _GAME_H_
+#define _GAME_H_
 
 #include "oled_api.h"
 #include "ps2btn_api.h"
 
-typedef struct
-{
-  int x;
-  int y;
-  int w;
-  int h;
-} Rectangle;
-
-struct point
-{
-  int x;
-  int y;
-};
-
 struct shortPoint
 {
-  unsigned char x;
-  unsigned char y;
+	unsigned char x;
+	unsigned char y;
 };
-
-// 巨集判斷矩形是否相交
-#define RECTANGLES_INTERSECT(rect1, rect2) \
-  (rect1.x < rect2.x + rect2.w &&          \
-   rect1.x + rect1.w > rect2.x &&          \
-   rect1.y < rect2.y + rect2.h &&          \
-   rect1.y + rect1.h > rect2.y)
 
 // global
 #define MOVE_VELOCITY 4
@@ -45,107 +25,107 @@ struct shortPoint
 #define SNAKE_MAP_UNIT_Y_LEN ((SCREEN_HEIGHT - (2 * SNAKE_MAP_OFFSET_Y)) / SNAKE_PIECE_SIZE)
 #define STARTING_SNAKE_SIZE 5
 #define MOVE_STATE_FRAME_CNT 3
-#define MAX_SNAKE_LENGTH ((SNAKE_MAP_UNIT_X_LEN * SNAKE_MAP_UNIT_Y_LEN)) // base on memory limit, can not too long
+#define MAX_SNAKE_LENGTH ((SNAKE_MAP_UNIT_X_LEN * SNAKE_MAP_UNIT_Y_LEN) - 5) // base on memory limit, can not too long
 #define SNAKE_MOVING_STATE_CNT 500
 
 #define BRICK_HEIGHT_COUNT 3
 #define BRICK_WIDTH_COUNT 9
 #define BRICK_COUNT (BRICK_HEIGHT_COUNT * BRICK_WIDTH_COUNT)
-#define BRICK_GAME_MOVING_STATE_CNT 30
+#define BRICK_GAME_MOVING_STATE_CNT 15
 
 enum GAME_STATE
 {
-  GAME_STATE_INIT,
-  GAME_STATE_PLAYING,
-  GAME_STATE_END,
+	GAME_STATE_INIT,
+	GAME_STATE_PLAYING,
+	GAME_STATE_END,
 };
 
 class GameBase
 {
 public:
-  OLED *oled;
-  PS2Button *btn;
-  GAME_STATE state;
-  int score;
-  unsigned long globalClock = 0;
+	OLED *oled;
+	PS2Button *btn;
+	GAME_STATE state;
+	int score;
+	unsigned long globalClock = 0;
 
-  void drawScore(void);
-  void drawIntroduce(String str);
-  bool asyncDelay(int ms);
+	void drawScore(void);
+	void drawIntroduce(String str);
+	bool asyncDelay(int ms);
 
-  GameBase(OLED &oled, PS2Button &btn);
+	GameBase(OLED &oled, PS2Button &btn);
 
-  virtual void runGame() = 0;
-  virtual void initGame() = 0;
-  virtual void render() = 0;
+	virtual void runGame() = 0;
+	virtual void initGame() = 0;
+	virtual void render() = 0;
 };
 
 class SnakeGame : public GameBase
 {
 private:
-  shortPoint snake[MAX_SNAKE_LENGTH]; // 蛇的身體之 x,y 座標
-  BUTTON_DIRECTORY curDir;
-  BUTTON_DIRECTORY newDir;
-  shortPoint fruit;
-  int8_t snake_length; // 蛇的長度
+	shortPoint snake[MAX_SNAKE_LENGTH]; // 蛇的身體之 x,y 座標
+	BUTTON_DIRECTORY curDir;
+	BUTTON_DIRECTORY newDir;
+	shortPoint fruit;
+	int8_t snake_length; // 蛇的長度
 
-  void readDirection();
-  void generateApple();
-  void drawGame();
-  void getNewPoint(shortPoint *oldPoint, shortPoint *newPoint);
+	void readDirection();
+	void generateApple();
+	void drawGame();
+	void getNewPoint(shortPoint *oldPoint, shortPoint *newPoint);
 
 public:
-  using GameBase::GameBase;
-  void runGame() override;
-  void initGame() override;
-  void render() override;
+	using GameBase::GameBase;
+	void runGame() override;
+	void initGame() override;
+	void render() override;
 };
 
 class WallBallGame : public GameBase
 {
 private:
-  shortPoint bricksPlace[BRICK_COUNT];
-  bool bricksActivity[BRICK_COUNT];
-  shortPoint paddle;
-  shortPoint ballPlace;
-  shortPoint ballVector;
+	shortPoint bricksPlace[BRICK_COUNT];
+	bool bricksActivity[BRICK_COUNT];
+	shortPoint paddle;
+	shortPoint ballPlace;
+	shortPoint ballVector;
 
-  static const short paddleWidth = 30;
-  static const short paddleHeight = 5;
-  static const short ballR = 2;
-  static const short brickWidth = 12;
-  static const short brickHeight = 4;
-  static const short brickMidOffset = 1;
-  static const short Y_OFFSET = 10;
-  static const short X_OFFSET = 4;
-  static const short ballSpeed = 1;
+	static const short paddleWidth = 20;
+	static const short paddleHeight = 5;
+	static const short ballR = 2;
+	static const short brickWidth = 12;
+	static const short brickHeight = 4;
+	static const short brickMidOffset = 1;
+	static const short Y_OFFSET = 10;
+	static const short X_OFFSET = 4;
+	static const short ballSpeed = 2;
 
-  void drawGame();
+	void drawGame();
 
 public:
-  using GameBase::GameBase;
-  void runGame() override;
-  void initGame() override;
-  void render() override;
+	using GameBase::GameBase;
+	void runGame() override;
+	void initGame() override;
+	void render() override;
 };
 
 class AirplaneGame : public GameBase
 {
 private:
-  const unsigned short playerWidth = 8;
-  const unsigned short playerHeight = 8;
-  const unsigned short obstacleWidth = 2;
-  const unsigned short obstacleHeight = 2;
-  const unsigned short obstacleCnt = AIRPLANE_obstacleCnt;
-  int userPlaceX = 0;
-  int userPlaceY = 0;
-  struct point obstacleList[AIRPLANE_obstacleCnt]; // obstacleCnt
+	const unsigned short playerWidth = 8;
+	const unsigned short playerHeight = 8;
+	const unsigned short obstacleWidth = 2;
+	const unsigned short obstacleHeight = 2;
+	const unsigned short obstacleCnt = AIRPLANE_obstacleCnt;
+	int userPlaceX = 0;
+	int userPlaceY = 0;
+	struct shortPoint obstacleList[AIRPLANE_obstacleCnt]; // obstacleCnt
 
 public:
-  using GameBase::GameBase;
-  void runGame() override;
-  void initGame() override;
-  void render() override;
+	using GameBase::GameBase;
+	void runGame() override;
+	void initGame() override;
+	void render() override;
 };
 
 #endif // !_GAME_H_

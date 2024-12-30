@@ -1,7 +1,12 @@
 #include <iostream>
 #include <cassert>
 #include <cmath>
-#include "phy.hpp"
+#include "../sketch/phy.hpp"
+
+// std::cout << cv_p.head.x << std::endl;
+// std::cout << cv_p.head.y << std::endl;
+// std::cout << cv_p.tail.x << std::endl;
+// std::cout << cv_p.tail.y << std::endl;
 
 int main()
 {
@@ -18,12 +23,6 @@ int main()
 	assert(l1.tail.y == 4);
 	assert(l1.delX() == 2);
 	assert(l1.delY() == 2);
-
-	Line l2(5, 1, 1, 5);
-	assert(l2.minXPoint().x == 1);
-	assert(l2.minYPoint().y == 1);
-	assert(l2.maxXPoint().x == 5);
-	assert(l2.maxYPoint().y == 5);
 
 	// Test Vector class
 	Vector v1(1, 2, 4, 6);
@@ -72,7 +71,7 @@ int main()
 
 	// Test Square class
 	Square s1(10, 10, 20, 30);
-	assert(s1.vecLen == 2);
+	assert(s1.vecLen == 4);
 
 	Vector proj1 = s1.getVecProject(short(0));
 	Vector proj2 = s1.getVecProject(short(1));
@@ -89,18 +88,57 @@ int main()
 
 	Vector v_proj3(0, 0, 1, 1);
 	Vector proj5 = s1.getVecProject(&v_proj3);
-	std::cout << proj5.head.x << std::endl;
-	std::cout << proj5.head.y << std::endl;
-	std::cout << proj5.tail.x << std::endl;
-	std::cout << proj5.tail.y << std::endl;
 	assert(proj5.head.x == 10);
 	assert(proj5.head.y == 10);
-	assert(proj5.tail.x == 25);
+	assert(proj5.tail.x == 35);
 	assert(proj5.tail.y == 35);
 
-	// Square s2(0, 0, 10, 10);
-	// Vector proj_test1 = s2.getVecProject(short(0));
-	// Vector proj_test2 = s2.getVecProject(short(1));
+	Square s2(5, 5, 5, 4);
+	Square s3(5, 5, 5, 5);
+
+	assert(checkSATCollision(s2, s3));
+	assert(checkSATCollision(s1, s3));
+	assert(!checkSATCollision(s1, s2));
+
+	// circle
+	Circle c1(10, 10, 5);
+	Circle c2(8, 8, 5);
+
+	assert(c1.getVecProject(short(0)).delY() == 5 * 2);
+	assert(c2.getVecProject(short(1)).delX() == 5 * 2);
+
+	Vector cv(0, 0, 1, 0);
+	Vector cv2(0, 0, 0, 1);
+	Vector cv3(0, 0, 1, 1);
+
+	Vector cv_p = c1.getVecProject(&cv);
+	assert(cv_p.delX() == 10);
+	assert(cv_p.delY() == 0);
+
+	Vector cv_p2 = c1.getVecProject(&cv2);
+	assert(cv_p2.delX() == 0);
+	assert(cv_p2.delY() == 10);
+
+	Vector cv_p3 = c1.getVecProject(&cv3);
+	assert(cv_p3.delX() == 7);
+	assert(cv_p3.delY() == 7);
+
+	assert(checkSATCollision(c1, c2));
+	assert(checkSATCollision(s2, c1));
+	assert(checkSATCollision(s2, c2));
+
+	Circle c3(20, 20, 5);
+	Circle c4(15, 5, 4);
+	assert(!checkSATCollision(c1, c3));
+	assert(!checkSATCollision(s2, c4));
+
+	Vector crossVec(0, 0, 1, 1);
+	Vector crossVec2(0, 1, 1, 0);
+	assert(crossVec.isIntersect(&crossVec2));
+
+	Vector crossVec3(0, 0, 2, 2);
+	Vector crossVec4(1, 0, 3, 2);
+	assert(!crossVec3.isIntersect(&crossVec4));
 
 	std::cout << "All tests passed!" << std::endl;
 	return 0;

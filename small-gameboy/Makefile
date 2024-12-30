@@ -1,6 +1,6 @@
 CLANG=clang++
 
-SRC=./sketch
+SRC=./tests
 
 PHY_HEADER=$(SRC)/phy.hpp
 TEST_SOURCE=$(SRC)/test-phy.cpp
