@@ -17,11 +17,11 @@ struct shortPoint
 // app
 #define AIRPLANE_obstacleCnt 10
 #define AIRPLANE_minusHeight -50
-#define AIRPLANE_WIDTH 6
+#define AIRPLANE_WIDTH 4
 #define AIRPLANE_MIN_WIDTH 2
-#define AIRPLANE_MAX_WIDTH 10
-#define AIRPLANE_LEN 12
-#define AIRPLANE_MAX_LEN 20
+#define AIRPLANE_MAX_WIDTH 6
+#define AIRPLANE_LEN 8
+#define AIRPLANE_MAX_LEN 12
 #define AIRPLANE_MIN_LEN 4
 #define AIRPLANE_STATE_MID 0
 #define AIRPLANE_STATE_UP 1
