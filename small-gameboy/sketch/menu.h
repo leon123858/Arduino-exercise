@@ -6,11 +6,11 @@
 
 enum MenuItem
 {
-  SNAKE,
-  WALL_BALL,
-  DINOSAUR,
-  AIRPLANE,
-  MENU_ITEM_COUNT
+	SNAKE,
+	BALL,
+	AIRPLANE,
+	ADJUST,
+	MENU_ITEM_COUNT
 };
 
 extern const char *menuItems[];

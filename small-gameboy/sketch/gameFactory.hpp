@@ -9,12 +9,12 @@ GameBase *gameFactory(MenuItem item, OLED &oled, PS2Button &btn)
 	{
 	case SNAKE:
 		return new SnakeGame(oled, btn);
-	case WALL_BALL:
+	case BALL:
 		return new WallBallGame(oled, btn);
-	case DINOSAUR:
-		return nullptr;
 	case AIRPLANE:
 		return new AirplaneGame(oled, btn);
+	case ADJUST:
+		return new AdjustSession(oled, btn);
 	default:
 		return nullptr;
 	}

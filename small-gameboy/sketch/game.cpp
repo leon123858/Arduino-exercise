@@ -593,3 +593,53 @@ void AirplaneGame::runGame()
 		break;
 	}
 }
+
+void AdjustSession::initGame() {}
+
+void AdjustSession::runGame()
+{
+	switch (state)
+	{
+	case GAME_STATE_INIT:
+		this->render();
+		if (this->btn->isClickBtn())
+		{
+			this->btn->resetBtn();
+			this->state = GAME_STATE_PLAYING;
+		}
+		break;
+	case GAME_STATE_PLAYING:
+		this->render();
+		this->btn->adjust();
+		this->state = GAME_STATE_END;
+		break;
+	case GAME_STATE_END:
+		this->render();
+		break;
+	}
+}
+
+void AdjustSession::render()
+{
+	auto display = oled->display;
+	switch (state)
+	{
+	case GAME_STATE_INIT:
+		display->clearDisplay();
+		this->drawIntroduce("click button to start adjust");
+		display->display();
+		break;
+	case GAME_STATE_PLAYING:
+		display->clearDisplay();
+		this->drawIntroduce("do not move button");
+		display->display();
+		break;
+	case GAME_STATE_END:
+		display->clearDisplay();
+		this->drawIntroduce("click button to back");
+		display->display();
+		break;
+	default:
+		break;
+	}
+};

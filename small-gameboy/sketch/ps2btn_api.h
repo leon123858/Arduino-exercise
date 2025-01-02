@@ -4,11 +4,11 @@
 #include <SPI.h>
 #include <Wire.h>
 
-#define XY_MIDDLE 450
-#define XY_MIDDLE_RANGE 10
+#define XY_MIDDLE_DEFAULT 450
+#define XY_MIDDLE_RANGE 200
 
-#define VERT_PIN A0
-#define HORZ_PIN A1
+#define VERT_PIN A1
+#define HORZ_PIN A0
 #define SEL_PIN 2
 #define INTERRUPT_TRIGGER_TYPE FALLING
 
@@ -54,30 +54,30 @@
 
 enum BUTTON_DIRECTORY
 {
-  UP,
-  DOWN,
-  LEFT,
-  RIGHT,
-  MID,
+	UP,
+	DOWN,
+	LEFT,
+	RIGHT,
+	MID,
 };
 
 class PS2Button
 {
 private:
-  int controlRawX = 0;
-  int controlRawY = 0;
+	int controlRawX = 0;
+	int controlRawY = 0;
 
-  void updateRawBtnDir(void);
+	void updateRawBtnDir(void);
 
 public:
-  PS2Button(/* args */);
-  ~PS2Button();
+	PS2Button(/* args */);
+	~PS2Button();
 
-  void init(void);
-
-  bool isClickBtn(void);
-  void resetBtn(void);
-  BUTTON_DIRECTORY getDir(void);
+	void init(void);
+	void adjust(void);
+	bool isClickBtn(void);
+	void resetBtn(void);
+	BUTTON_DIRECTORY getDir(void);
 };
 
 #endif // !_PS2BUTTON_H
