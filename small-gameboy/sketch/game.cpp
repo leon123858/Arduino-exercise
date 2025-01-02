@@ -461,8 +461,33 @@ void AirplaneGame::initGame()
 	{
 		this->obstacleList[i] = shortPoint{0, SCREEN_HEIGHT + 1};
 	}
-	this->userPlaceX = SCREEN_WIDTH / 2 - this->playerWidth / 2;
-	this->userPlaceY = SCREEN_HEIGHT - this->playerHeight - 1;
+	this->userPlaceX = SCREEN_WIDTH / 2;
+	this->userPlaceY = SCREEN_HEIGHT - AIRPLANE_MAX_LEN - 1;
+}
+
+void AirplaneGame::drawAirplane(Adafruit_SSD1306 *display)
+{
+
+	switch (this->planeState)
+	{
+	case AIRPLANE_STATE_MID:
+		display->fillTriangle(userPlaceX, userPlaceY, userPlaceX - AIRPLANE_WIDTH, userPlaceY + AIRPLANE_LEN, userPlaceX + AIRPLANE_WIDTH, userPlaceY + AIRPLANE_LEN, WHITE);
+		break;
+	case AIRPLANE_STATE_UP:
+		display->fillTriangle(userPlaceX, userPlaceY, userPlaceX - AIRPLANE_MIN_WIDTH, userPlaceY + AIRPLANE_MAX_LEN, userPlaceX + AIRPLANE_MIN_WIDTH, userPlaceY + AIRPLANE_MAX_LEN, WHITE);
+		break;
+	case AIRPLANE_STATE_DOWN:
+		display->fillTriangle(userPlaceX, userPlaceY, userPlaceX - AIRPLANE_MAX_WIDTH, userPlaceY + AIRPLANE_MIN_LEN, userPlaceX + AIRPLANE_MAX_WIDTH, userPlaceY + AIRPLANE_MIN_LEN, WHITE);
+		break;
+	case AIRPLANE_STATE_LEFT:
+		display->fillTriangle(userPlaceX, userPlaceY, userPlaceX - AIRPLANE_MAX_WIDTH, userPlaceY + AIRPLANE_LEN, userPlaceX + AIRPLANE_MIN_WIDTH, userPlaceY + AIRPLANE_LEN, WHITE);
+		break;
+	case AIRPLANE_STATE_RIGHT:
+		display->fillTriangle(userPlaceX, userPlaceY, userPlaceX - AIRPLANE_MIN_WIDTH, userPlaceY + AIRPLANE_LEN, userPlaceX + AIRPLANE_MAX_WIDTH, userPlaceY + AIRPLANE_LEN, WHITE);
+		break;
+	default:
+		break;
+	}
 }
 
 void AirplaneGame::render()
@@ -472,8 +497,8 @@ void AirplaneGame::render()
 	{
 	case GAME_STATE_INIT:
 		display->clearDisplay();
-		display->fillRect(this->userPlaceX, this->userPlaceY, this->playerWidth, this->playerHeight, WHITE);
 		this->drawScore();
+		this->drawAirplane(display);
 		this->drawIntroduce("click button to start");
 		display->display();
 		break;
@@ -486,7 +511,7 @@ void AirplaneGame::render()
 				display->fillRect(obstacleList[i].x, obstacleList[i].y, this->obstacleWidth, this->obstacleHeight, WHITE);
 			}
 		}
-		display->fillRect(this->userPlaceX, this->userPlaceY, this->playerWidth, this->playerHeight, WHITE);
+		this->drawAirplane(display);
 		this->drawScore();
 		display->display();
 		break;
@@ -526,39 +551,84 @@ void AirplaneGame::runGame()
 		{
 		case LEFT:
 			userPlaceX -= MOVE_VELOCITY;
+			planeState = AIRPLANE_STATE_LEFT;
 			break;
 		case RIGHT:
 			userPlaceX += MOVE_VELOCITY;
+			planeState = AIRPLANE_STATE_RIGHT;
 			break;
 		case UP:
 			userPlaceY -= MOVE_VELOCITY;
+			planeState = AIRPLANE_STATE_UP;
 			break;
 		case DOWN:
 			userPlaceY += MOVE_VELOCITY;
+			planeState = AIRPLANE_STATE_DOWN;
 			break;
+		case MID:
+			planeState = AIRPLANE_STATE_MID;
 		default:
 			break;
 		}
 		// verify control
 		if (userPlaceX < 0)
 			userPlaceX = 0;
-		if (userPlaceX > SCREEN_WIDTH - this->playerWidth)
-			userPlaceX = SCREEN_WIDTH - this->playerWidth;
+		if (userPlaceX > SCREEN_WIDTH - AIRPLANE_MAX_WIDTH)
+			userPlaceX = SCREEN_WIDTH - AIRPLANE_MAX_WIDTH;
 		if (userPlaceY < 0)
 			userPlaceY = 0;
-		if (userPlaceY > SCREEN_HEIGHT - this->playerHeight)
-			userPlaceY = SCREEN_HEIGHT - this->playerHeight;
+		if (userPlaceY > SCREEN_HEIGHT - AIRPLANE_MAX_LEN)
+			userPlaceY = SCREEN_HEIGHT - AIRPLANE_MAX_LEN;
 		// move enemy
 		for (auto i = 0; i < obstacleCnt; i++)
 		{
 			obstacleList[i].y += MOVE_VELOCITY;
 		}
 		// verify enemy
-		Square s1(userPlaceX, userPlaceY, this->playerWidth, this->playerHeight);
+		short x2 = 0;
+		short y2 = 0;
+		short x3 = 0;
+		short y3 = 0;
+		switch (this->planeState)
+		{
+		case AIRPLANE_STATE_MID:
+			x2 = userPlaceX - AIRPLANE_WIDTH;
+			y2 = userPlaceY + AIRPLANE_LEN;
+			x3 = userPlaceX + AIRPLANE_WIDTH;
+			y3 = userPlaceY + AIRPLANE_LEN;
+			break;
+		case AIRPLANE_STATE_UP:
+			x2 = userPlaceX - AIRPLANE_MIN_WIDTH;
+			y2 = userPlaceY + AIRPLANE_MAX_LEN;
+			x3 = userPlaceX + AIRPLANE_MIN_WIDTH;
+			y3 = userPlaceY + AIRPLANE_MAX_LEN;
+			break;
+		case AIRPLANE_STATE_DOWN:
+			x2 = userPlaceX - AIRPLANE_MAX_WIDTH;
+			y2 = userPlaceY + AIRPLANE_MIN_LEN;
+			x3 = userPlaceX + AIRPLANE_MAX_WIDTH;
+			y3 = userPlaceY + AIRPLANE_MIN_LEN;
+			break;
+		case AIRPLANE_STATE_LEFT:
+			x2 = userPlaceX - AIRPLANE_MAX_WIDTH;
+			y2 = userPlaceY + AIRPLANE_LEN;
+			x3 = userPlaceX + AIRPLANE_MIN_WIDTH;
+			y3 = userPlaceY + AIRPLANE_LEN;
+			break;
+		case AIRPLANE_STATE_RIGHT:
+			x2 = userPlaceX - AIRPLANE_MIN_WIDTH;
+			y2 = userPlaceY + AIRPLANE_LEN;
+			x3 = userPlaceX + AIRPLANE_MAX_WIDTH;
+			y3 = userPlaceY + AIRPLANE_LEN;
+			break;
+		default:
+			break;
+		}
+		Triangle t1(userPlaceX, userPlaceY, x2, y2, x3, y3);
 		for (auto i = 0; i < obstacleCnt; i++)
 		{
 			Square s2(obstacleList[i].x, obstacleList[i].y, this->obstacleWidth, this->obstacleHeight);
-			bool ret = checkSATCollision(s1, s2);
+			bool ret = checkSATCollision(s2, t1);
 			if (ret)
 			{
 				isImpact = true;

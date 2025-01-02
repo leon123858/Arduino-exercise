@@ -17,6 +17,17 @@ struct shortPoint
 // app
 #define AIRPLANE_obstacleCnt 10
 #define AIRPLANE_minusHeight -50
+#define AIRPLANE_WIDTH 6
+#define AIRPLANE_MIN_WIDTH 2
+#define AIRPLANE_MAX_WIDTH 10
+#define AIRPLANE_LEN 12
+#define AIRPLANE_MAX_LEN 20
+#define AIRPLANE_MIN_LEN 4
+#define AIRPLANE_STATE_MID 0
+#define AIRPLANE_STATE_UP 1
+#define AIRPLANE_STATE_DOWN 2
+#define AIRPLANE_STATE_LEFT 3
+#define AIRPLANE_STATE_RIGHT 4
 
 #define SNAKE_PIECE_SIZE 9
 #define SNAKE_MAP_OFFSET_X 10
@@ -112,14 +123,15 @@ public:
 class AirplaneGame : public GameBase
 {
 private:
-	const unsigned short playerWidth = 8;
-	const unsigned short playerHeight = 8;
 	const unsigned short obstacleWidth = 2;
 	const unsigned short obstacleHeight = 2;
 	const unsigned short obstacleCnt = AIRPLANE_obstacleCnt;
-	int userPlaceX = 0;
-	int userPlaceY = 0;
+	short planeState = AIRPLANE_STATE_MID;
+	short userPlaceX = 0;
+	short userPlaceY = 0;
 	struct shortPoint obstacleList[AIRPLANE_obstacleCnt]; // obstacleCnt
+
+	void drawAirplane(Adafruit_SSD1306 *display);
 
 public:
 	using GameBase::GameBase;

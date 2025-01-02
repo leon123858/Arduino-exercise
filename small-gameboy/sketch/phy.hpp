@@ -354,6 +354,57 @@ Vector Circle::getVecProject(Vector *v)
 	return Vector(mv.x - t * bbX, mv.y - t * bbY, mv.x + t * bbX, mv.y + t * bbY);
 };
 
+class Triangle : public Shape
+{
+private:
+	/* data */
+public:
+	Triangle(short x1, short y1, short x2, short y2, short x3, short y3);
+	Vector getVecProject(short index) override;
+	Vector getVecProject(Vector *v) override;
+};
+
+Triangle::Triangle(short x1, short y1, short x2, short y2, short x3, short y3)
+{
+	this->vecList = new Vector[3]{
+		Vector(x1, y1, x2, y2),
+		Vector(x2, y2, x3, y3),
+		Vector(x3, y3, x1, y1),
+	};
+	vecLen = 3;
+}
+
+Vector Triangle::getVecProject(short index)
+{
+	Vector normalVec = vecList[index].normalVector();
+	Vector projectVecList[2];
+	short cur = 0;
+	// get all line project
+	for (size_t i = 0; i < vecLen; i++)
+	{
+		if (i == index)
+		{
+			continue;
+		}
+		projectVecList[cur] = vecList[i].projectVector(&normalVec);
+		cur++;
+	}
+
+	return mergeProjectList(projectVecList, cur);
+}
+
+Vector Triangle::getVecProject(Vector *v)
+{
+	Vector projectVecList[3];
+	// get all line project
+	for (size_t i = 0; i < vecLen; i++)
+	{
+		projectVecList[i] = vecList[i].projectVector(v);
+	}
+
+	return mergeProjectList(projectVecList, vecLen);
+}
+
 bool checkSATCollision(Square &a, Square &b)
 {
 	for (short i = 0; i < a.vecLen; i++)
@@ -384,6 +435,20 @@ bool checkSATCollision(Circle &a, Circle &b)
 }
 
 bool checkSATCollision(Square &a, Circle &b)
+{
+	for (short i = 0; i < a.vecLen; i++)
+	{
+		Vector av = a.getVecProject(i);
+		Vector bv = b.getVecProject(&av);
+		if (!av.isParallelOverLapping(&bv))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+bool checkSATCollision(Square &a, Triangle &b)
 {
 	for (short i = 0; i < a.vecLen; i++)
 	{
