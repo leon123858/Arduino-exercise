@@ -22,9 +22,10 @@ void Controller::Serve(void)
 	switch (curState)
 	{
 	case Welcome:
-		delay(1500);
+		delay(500);
 		this->state = Menu;
 		btn.resetBtn();
+		btn.adjust();
 		break;
 	case Menu:
 		moveSelection(this->btn);

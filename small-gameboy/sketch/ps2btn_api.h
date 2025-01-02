@@ -4,8 +4,8 @@
 #include <SPI.h>
 #include <Wire.h>
 
-#define XY_MIDDLE_DEFAULT 450
-#define XY_MIDDLE_RANGE 125
+#define XY_MIDDLE_DEFAULT 512
+#define XY_MIDDLE_RANGE 120
 
 #define VERT_PIN A1
 #define HORZ_PIN A0

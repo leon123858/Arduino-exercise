@@ -50,6 +50,7 @@ void PS2Button::init(void)
 void PS2Button::adjust(void)
 {
 	delay(1000);
+	updateRawBtnDir();
 	naturalMiddle_x = this->controlRawX;
 	naturalMiddle_y = this->controlRawY;
 }
