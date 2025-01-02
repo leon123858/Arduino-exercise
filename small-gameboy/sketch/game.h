@@ -6,8 +6,8 @@
 
 struct shortPoint
 {
-	unsigned char x;
-	unsigned char y;
+	short x : 8;
+	short y : 8;
 };
 
 // global
@@ -28,7 +28,7 @@ struct shortPoint
 #define MAX_SNAKE_LENGTH ((SNAKE_MAP_UNIT_X_LEN * SNAKE_MAP_UNIT_Y_LEN) - 5) // base on memory limit, can not too long
 #define SNAKE_MOVING_STATE_CNT 500
 
-#define BRICK_HEIGHT_COUNT (3)
+#define BRICK_HEIGHT_COUNT (3 - 1)
 #define BRICK_WIDTH_COUNT (9)
 #define BRICK_COUNT (BRICK_HEIGHT_COUNT * BRICK_WIDTH_COUNT)
 #define BRICK_GAME_MOVING_STATE_CNT 15

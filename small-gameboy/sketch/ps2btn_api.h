@@ -5,7 +5,7 @@
 #include <Wire.h>
 
 #define XY_MIDDLE_DEFAULT 450
-#define XY_MIDDLE_RANGE 200
+#define XY_MIDDLE_RANGE 125
 
 #define VERT_PIN A1
 #define HORZ_PIN A0
