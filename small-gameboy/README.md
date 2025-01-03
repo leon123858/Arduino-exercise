@@ -1,5 +1,9 @@
 # Arduino Project: small-GameBoy
 
+![alt text](./docs/demo-1.png)
+![alt text](./docs/demo-2.png)
+![alt text](./docs/demo-3.png)
+
 ## Overview
 
 This project is designed to recreate a small GameBoy experience utilizing an Arduino board as its central component. Its primary objective goes beyond creating a singular game solution; it seeks to offer a reusable prototype that hobbyists and enthusiasts can easily adapt and expand according to their needs. By prioritizing simplicity and modularity in the source code development, this project acts as a foundational demo for constructing diverse games or applications on an Arduino-powered small GameBoy.
@@ -38,7 +42,7 @@ Note:
 
 ### step 1 (connecting the hardware to your computer)
 
-![dedicated Arduino cable](image.png)
+![dedicated Arduino cable](./docs/cable.png)
 Connect your Arduino board to your computer using a dedicated Arduino cable through a USB port, allowing for seamless data exchange between hardware and software environments. On Windows systems, you can discover new Input Output (IO) devices by navigating to the Device Manager, while on MacOS or Linux platforms, such discovery is facilitated via the terminal application.
 
 It's important to be aware that compatibility issues may arise due to various factors; notably, certain USB 3.0 ports might not fully support older third-party Arduino boards. This necessitates careful selection of your hardware and ensuring it is compatible with the version of the Arduino IDE you are using.
