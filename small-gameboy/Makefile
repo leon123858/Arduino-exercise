@@ -18,6 +18,11 @@ test:
 	echo testing
 	$(OUTPUT_EXE)
 
+init:
+	echo initializing
+	arduino-cli core install arduino:avr
+	arduino-cli lib install "Adafruit SSD1306"
+
 compile:
 	echo compiling
 	arduino-cli compile --fqbn $(FQBN) $(SKETCH_PATH)

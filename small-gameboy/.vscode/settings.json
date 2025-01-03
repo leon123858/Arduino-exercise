@@ -57,5 +57,6 @@
 		"xloctime": "cpp",
 		"xmemory": "cpp",
 		"xtr1common": "cpp"
-	}
+	},
+	"cSpell.words": ["OLED"]
 }

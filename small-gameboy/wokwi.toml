@@ -1,4 +1,0 @@
-[wokwi]
-version = 1
-firmware = './arduino_build/sketch.ino.hex'  
-elf = './arduino_build/sketch.ino.elf'
