@@ -114,7 +114,7 @@ classDiagram
     }
 
     Shape --* Vector
-    Vector --* Line
+    Vector <|-- Line
     Line --* Point
 
     Shape <|-- Square
